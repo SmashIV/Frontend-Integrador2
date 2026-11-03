@@ -19,6 +19,7 @@ import {
 import MapaMonitoreo from "../componentes/mapa";
 import GraficaMicroclima from "../componentes/grafica_clima";
 import TablaAlertas from "../componentes/tabla_alertas";
+import ModalBug from '../componentes/ModalBug';
 
 export default function VistaDashboard({ usuario, onCerrarSesion, onIrAAdmin }) {
   const [camiones, setCamiones] = useState([]);
@@ -27,6 +28,7 @@ export default function VistaDashboard({ usuario, onCerrarSesion, onIrAAdmin }) 
   const [historial, setHistorial] = useState([]);
   const [alertas, setAlertas] = useState([]);
   const [error, setError] = useState(null);
+  const [modalBugAbierto, setModalBugAbierto] = useState(false);
 
   // 1. Cargar la flota
   useEffect(() => {
@@ -126,6 +128,15 @@ export default function VistaDashboard({ usuario, onCerrarSesion, onIrAAdmin }) 
               </span>
             </div>
 
+            {/* Botón Reportar Bug */}
+              <button
+                type="button"
+                onClick={() => setModalBugAbierto(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rose-300 text-rose-600 hover:bg-rose-50 text-sm font-medium transition"
+              >
+                <span></span>
+                <span>Reportar Bug</span>
+              </button>
             {onIrAAdmin && (
               <button
                 onClick={onIrAAdmin}
@@ -135,7 +146,7 @@ export default function VistaDashboard({ usuario, onCerrarSesion, onIrAAdmin }) 
                 Panel Admin
               </button>
             )}
-
+            
             <button
               onClick={onCerrarSesion}
               className="flex items-center gap-1 text-xs text-slate-600 hover:text-red-600 transition-colors px-2 py-1.5 font-medium"
@@ -261,6 +272,10 @@ export default function VistaDashboard({ usuario, onCerrarSesion, onIrAAdmin }) 
         </div>
 
       </main>
+      <ModalBug
+        abierto={modalBugAbierto}
+        alCerrar={() => setModalBugAbierto(false)}
+      />
     </div>
   );
 }
