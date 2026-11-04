@@ -11,24 +11,40 @@ export default function ModalBug({ abierto, alCerrar }) {
     setEnviando(true);
     setEstadoEnvio(null);
 
-    const formData = new FormData(e.target);
+    const form = e.target;
+    const datos = new FormData(form);
+    const titulo = datos.get("titulo");
+    const email = datos.get("email");
+    const descripcion = datos.get("descripcion");
 
-    // Variable cargada desde tu archivo .env
-    formData.append("access_key", import.meta.env.VITE_WEB3FORMS_KEY);
-    formData.append("subject", `[BUG MONITOREO] ${formData.get("titulo")}`);
-    formData.append("from_name", "Sistema de Monitoreo IoT");
+    const contenidoMensaje = `
+Reportado por: ${email}
+
+Descripción del problema:
+${descripcion}
+    `.trim();
 
     try {
       const respuesta = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: import.meta.env.VITE_WEB3FORMS_KEY,
+          subject: `[BUG] ${titulo}`,
+          from_name: "Sistema de Monitoreo IoT",
+          email: email,
+          message: contenidoMensaje,
+        }),
       });
 
       const data = await respuesta.json();
 
       if (data.success) {
         setEstadoEnvio('exito');
-        e.target.reset();
+        form.reset();
         setTimeout(() => {
           setEstadoEnvio(null);
           alCerrar();
@@ -79,7 +95,7 @@ export default function ModalBug({ abierto, alCerrar }) {
         {/* Notificaciones */}
         {estadoEnvio === 'exito' && (
           <div className="p-3 mb-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center gap-2">
-            <span>✓</span> Reporte enviado directamente al correo del equipo.
+            <span>✓</span> Reporte enviado directamente al equipo de soporte en Jira.
           </div>
         )}
         {estadoEnvio === 'error' && (
@@ -103,34 +119,17 @@ export default function ModalBug({ abierto, alCerrar }) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Severidad
-              </label>
-              <select
-                name="severidad"
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-slate-800 focus:outline-none transition"
-              >
-                <option value="Baja">Baja</option>
-                <option value="Media">Media</option>
-                <option value="Alta">Alta</option>
-                <option value="Crítica">Crítica</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Correo Electrónico
-              </label>
-              <input
-                type="email"
-                name="email"
-                required
-                placeholder="carlos.m@losandes.com"
-                className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-800 placeholder-slate-400 focus:border-slate-800 focus:outline-none transition"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Correo Electrónico
+            </label>
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder="carlos.m@losandes.com"
+              className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-800 placeholder-slate-400 focus:border-slate-800 focus:outline-none transition"
+            />
           </div>
 
           <div>
